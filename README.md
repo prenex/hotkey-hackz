@@ -1,0 +1,3 @@
+# midi_hackz
+
+Simple c++ app to play background midi music from a given directory. Useful for games where it does not work with wine...
