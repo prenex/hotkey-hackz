@@ -6,50 +6,81 @@
  * Oh yeah I know about that there is some regedit trick, but for me it never works! Not even if I 
  * tried to "read out" the source code just like as if it would be some book...
  *
+ * Configuration is done via start.sh and stop.sh (see example files)
+ * Hotkey CTRL+SHIFT+Y starts/stops playback using scripts.
+ *
  * Build with:
  * g++ musicplayer.cpp -o musicplayer -lX11
  */
 
-#include <iostream>
+#include <signal.h>
+#include <cstdio>
+#include <cstdlib>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
+const char* start_cmd = "./start.sh&";
+const char* stop_cmd = "./stop.sh&";
+
+Display* dpy;
+int keycode_y;
+unsigned int modifiers;
+Window	grab_window;
+
+// Needed for cleanup because we only quit using CTRL+C
+void handler(int dummy) {
+	system(stop_cmd);
+	XUngrabKey(dpy,keycode_y,modifiers,grab_window);
+	/*
+	XCloseDisplay(dpy);
+	*/
+	exit(0);
+}
+
 int main() {
-	Display*	dpy		= XOpenDisplay(0);
-	Window		root	= DefaultRootWindow(dpy);
-	XEvent		ev;
+	if(signal(SIGQUIT, handler) == SIG_ERR) {
+		fprintf(stderr, "Cannot handle sigquit!\n");
+	}
+	if(signal(SIGINT, handler) == SIG_ERR) {
+		fprintf(stderr, "Cannot handle sigint!\n");
+	}
 
-	unsigned int	modifiers		= ControlMask | ShiftMask;
-	int				keycode			= XKeysymToKeycode(dpy,XK_Y);
-	Window			grab_window		=  root;
-	Bool			owner_events	= False;
-	int				pointer_mode	= GrabModeAsync;
-	int				keyboard_mode	= GrabModeAsync;
+	dpy = XOpenDisplay(0);
+	Window root = DefaultRootWindow(dpy);
+	XEvent ev;
+	bool isPlaying = false;
 
-	XGrabKey(dpy, keycode, modifiers, grab_window, owner_events, pointer_mode,
+	modifiers = ControlMask | ShiftMask;
+	keycode_y = XKeysymToKeycode(dpy,XK_Y);
+	grab_window = root;
+	Bool owner_events = False;
+	int pointer_mode = GrabModeAsync;
+	int keyboard_mode = GrabModeAsync;
+
+	XGrabKey(dpy, keycode_y, modifiers, grab_window, owner_events, pointer_mode,
 			keyboard_mode);
 
-	XSelectInput(dpy, root, KeyPressMask );
+	XSelectInput(dpy, root, KeyPressMask);
+	printf("Just quit the app with CTRL+C from the terminal. Use CTRL+SHIFT+Y to start/stop music\n");
 	while(true)
 	{
-		bool shouldQuit = false;
 		XNextEvent(dpy, &ev);
 		switch(ev.type)
 		{
 			case KeyPress:
-				// TODO: start to play music
-				std::cout << "Hot key pressed!" << std::endl;
-				XUngrabKey(dpy,keycode,modifiers,grab_window);
-				shouldQuit = true;
-
-			default:
+				printf("Hotkey (CTRL+SHIFT+Y) -> ");
+				if(isPlaying) {
+					printf("%s\n", stop_cmd);
+					system(stop_cmd);
+				} else {
+					printf("%s\n", start_cmd);
+					system(start_cmd);
+				}
+				isPlaying = !isPlaying;
 				break;
 		}
-
-		if(shouldQuit)
-			break;
 	}
 
-	XCloseDisplay(dpy);
+	printf("THIS SHOULD NEVER GET PRINTED!");
 	return 0;
 }
