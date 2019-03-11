@@ -11,7 +11,7 @@
  * Hotkey CTRL+SHIFT+Y starts/stops playback using scripts.
  *
  * Build with (has makefile):
- * g++ musicplayer.cpp -o musicplayer -lX11
+ * g++ hothackz.cpp -o hothackz -lX11
  */
 
 #include <signal.h>
@@ -62,7 +62,7 @@ int main() {
 			keyboard_mode);
 
 	XSelectInput(dpy, root, KeyPressMask);
-	printf("Just quit the app with CTRL+C from the terminal. Use CTRL+SHIFT+Y to start/stop music\n");
+	printf("Just quit the app with CTRL+C from the terminal. Use CTRL+SHIFT+Y to start/stop\n");
 	while(true)
 	{
 		XNextEvent(dpy, &ev);
