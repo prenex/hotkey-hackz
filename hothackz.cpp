@@ -1,5 +1,6 @@
 /*
- * Simple app that plays the midi music files for Age Of Empires from the sound/midi dictionary
+ * Simple app that sets a hotkey and runs start.sh, stop.sh consequtively for every call.
+ * Usage example: play the midi/mp3 music files for Age Of Empires from the sound/midi directory.
  *
  * Useful if this does not work under wine+timidity despite you do all the stuff mentined on wine/midi
  * even though age 1 works (but only when aconnect is made to route from 14->128).
@@ -9,7 +10,7 @@
  * Configuration is done via start.sh and stop.sh (see example files)
  * Hotkey CTRL+SHIFT+Y starts/stops playback using scripts.
  *
- * Build with:
+ * Build with (has makefile):
  * g++ musicplayer.cpp -o musicplayer -lX11
  */
 
@@ -81,6 +82,8 @@ int main() {
 		}
 	}
 
+	// We only quit by CTRL+C
+	// I think there is no real reason to complicate this with an other combo for quitting!
 	printf("THIS SHOULD NEVER GET PRINTED!");
 	return 0;
 }

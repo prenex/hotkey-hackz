@@ -1,2 +1,2 @@
 all:
-	g++ musicplayer.cpp -o musicplayer -lX11
+	g++ hothackz.cpp -o hothackz -lX11
